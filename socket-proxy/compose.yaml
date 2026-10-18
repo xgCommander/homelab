@@ -1,0 +1,30 @@
+networks:
+  socket-proxy:
+    name: socket-proxy
+    internal: true
+
+services:
+  socket-proxy:
+    container_name: socket-proxy
+    environment:
+      ALLOW_LOGS: 1
+      CONTAINERS: 1
+      EVENTS: 1
+      INFO: 1
+      NETWORKS: 1
+      PING: 1
+      POST: 0
+      TZ: Asia/Kolkata
+      VERSION: 1
+    image: lscr.io/linuxserver/socket-proxy:latest
+    networks:
+    - socket-proxy
+    read_only: true
+    restart: unless-stopped
+    tmpfs:
+    - /run
+    volumes:
+    - type: bind
+      source: /var/run/docker.sock
+      target: /var/run/docker.sock
+      read_only: true

@@ -2,6 +2,9 @@ networks:
   default:
     name: tk-proxy
     external: true
+  scanopy-internal:
+    name: scanopy-internal
+    internal: true
 
 services:
   scanopy-daemon:
@@ -14,7 +17,7 @@ services:
       SCANOPY_MODE: daemon_poll
       SCANOPY_NAME: scanopy-daemon-home-network
       SCANOPY_NETWORK_ID: ${SCANOPY_NETWORK_ID}
-      SCANOPY_SERVER_URL: http://localhost:60072
+      SCANOPY_SERVER_URL: http://127.0.0.1:60072
       SCANOPY_USER_ID: ${SCANOPY_USER_ID}
     healthcheck:
       test:
@@ -30,7 +33,7 @@ services:
     volumes:
     - type: bind
       source: ./container_data/scanopy-daemon/daemon-config
-      target: /root/.config/daemon
+      target: /root/.config/scanopy/daemon
       read_only: false
     - type: bind
       source: /var/run/docker.sock
@@ -50,6 +53,8 @@ services:
       timeout: 5s
       retries: 5
     image: postgres:17-alpine
+    networks:
+    - scanopy-internal
     restart: unless-stopped
     volumes:
     - type: bind
@@ -65,7 +70,8 @@ services:
       SCANOPY_DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD:-password}@scanopy-postgres:5432/scanopy
       SCANOPY_INTEGRATED_DAEMON_URL: http://host.docker.internal:60073
       SCANOPY_LOG_LEVEL: ${SCANOPY_LOG_LEVEL:-info}
-      SCANOPY_PUBLIC_URL: ${SCANOPY_PUBLIC_URL:-http://localhost:60072}
+      SCANOPY_PUBLIC_URL: ${SCANOPY_PUBLIC_URL:-https://scanopy.local.xerogravity.space}
+      SCANOPY_USE_SECURE_SESSION_COOKIES: true
       SCANOPY_WEB_EXTERNAL_PATH: /app/static
     extra_hosts:
     - host.docker.internal:host-gateway
@@ -77,6 +83,11 @@ services:
       traefik.http.routers.scanopy.service: scanopy
       traefik.http.routers.scanopy.tls: true
       traefik.http.services.scanopy.loadbalancer.server.port: 60072
+    networks:
+    - default
+    - scanopy-internal
+    ports:
+    - 127.0.0.1:60072:60072
     restart: unless-stopped
     volumes:
     - type: bind

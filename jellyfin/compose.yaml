@@ -38,6 +38,10 @@ services:
       target: /media
       read_only: false
     - type: bind
+      source: /mnt/void/data/media
+      target: /data/media
+      read_only: true
+    - type: bind
       source: ./container_data/jellyfin/cache
       target: /cache
       read_only: false
@@ -77,7 +81,9 @@ services:
     env_file:
     - .env
     environment:
+      MEILI_ENV: production
       MEILI_MASTER_KEY: ${MEILI_MASTER_KEY}
+      MEILI_NO_ANALYTICS: true
     image: getmeili/meilisearch:v1.9
     restart: unless-stopped
     volumes:

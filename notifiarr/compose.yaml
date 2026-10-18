@@ -26,3 +26,7 @@ services:
       source: ./container_data/notifiarr/config
       target: /config
       read_only: false
+    - type: bind
+      source: /etc/machine-id
+      target: /etc/machine-id
+      read_only: true

@@ -20,6 +20,7 @@ services:
       traefik.http.routers.stirling-pdf.service: stirling-pdf
       traefik.http.routers.stirling-pdf.tls: true
       traefik.http.services.stirling-pdf.loadbalancer.server.port: 8080
+    mem_limit: 4g
     restart: unless-stopped
     volumes:
     - type: bind

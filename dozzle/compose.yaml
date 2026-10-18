@@ -2,11 +2,15 @@ networks:
   default:
     name: tk-proxy
     external: true
+  socket-proxy:
+    name: socket-proxy
+    external: true
 
 services:
   dozzle:
     container_name: dozzle
     environment:
+      DOCKER_HOST: tcp://socket-proxy:2375
       DOZZLE_HOSTNAME: dozzle.local.xerogravity.space
     image: amir20/dozzle:latest
     labels:
@@ -16,9 +20,7 @@ services:
       traefik.http.routers.dozzle.service: dozzle
       traefik.http.routers.dozzle.tls: true
       traefik.http.services.dozzle.loadbalancer.server.port: 8080
+    networks:
+    - default
+    - socket-proxy
     restart: unless-stopped
-    volumes:
-    - type: bind
-      source: /var/run/docker.sock
-      target: /var/run/docker.sock
-      read_only: false

@@ -7,22 +7,32 @@ services:
   byparr:
     container_name: byparr
     depends_on:
-    - qbittorrentvpn
+      qbittorrentvpn:
+        condition: service_healthy
+        restart: true
     environment:
       LOG_LEVEL: info
       PORT: 8192
       TZ: Asia/Kolkata
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fs http://127.0.0.1:8192/health"]
+      interval: 15m
+      timeout: 150s
+      start_period: 2m
+      retries: 3
     image: ghcr.io/thephaseless/byparr:latest
     network_mode: container:qbittorrentvpn
     restart: unless-stopped
   flaresolverr:
     container_name: flaresolverr
     depends_on:
-    - qbittorrentvpn
+      qbittorrentvpn:
+        condition: service_healthy
+        restart: true
     environment:
       CAPTCHA_SOLVER: none
       LOG_HTML: false
-      LOG_LEVEL: debug
+      LOG_LEVEL: info
       TZ: Asia/Kolkata
     image: ghcr.io/flaresolverr/flaresolverr:latest
     network_mode: container:qbittorrentvpn
@@ -30,7 +40,9 @@ services:
   prowlarr:
     container_name: prowlarr
     depends_on:
-    - qbittorrentvpn
+      qbittorrentvpn:
+        condition: service_healthy
+        restart: true
     environment:
       PGID: 1000
       PUID: 1000
@@ -69,6 +81,14 @@ services:
       VPN_PROV: protonvpn
       VPN_USER: ${VPN_USER}
       WEBUI_PORT: 8080
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - '[ -e /sys/class/net/tun0 ] && curl -s -o /dev/null http://127.0.0.1:8080/ || exit 1'
+      interval: 30s
+      timeout: 10s
+      start_period: 2m
+      retries: 3
     image: binhex/arch-qbittorrentvpn
     labels:
       traefik.enable: true
@@ -121,7 +141,9 @@ services:
   radarr:
     container_name: radarr
     depends_on:
-    - qbittorrentvpn
+      qbittorrentvpn:
+        condition: service_healthy
+        restart: true
     environment:
       PGID: 1000
       PUID: 1000
@@ -141,7 +163,9 @@ services:
   sonarr:
     container_name: sonarr
     depends_on:
-    - qbittorrentvpn
+      qbittorrentvpn:
+        condition: service_healthy
+        restart: true
     environment:
       PGID: 1000
       PUID: 1000

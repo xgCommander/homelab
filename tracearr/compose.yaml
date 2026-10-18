@@ -66,6 +66,7 @@ services:
       NODE_ENV: production
       PORT: 3000
       REDIS_URL: redis://tracearr-redis:6379
+      TRUST_PROXY: true
       TZ: Asia/Kolkata
     image: ghcr.io/connorgallopo/tracearr:latest
     labels:
@@ -80,4 +81,8 @@ services:
     - type: bind
       source: ./container_data/tracearr/backup
       target: /data/backup
+      read_only: false
+    - type: bind
+      source: ./container_data/tracearr/image-cache
+      target: /data/tracearr/image-cache
       read_only: false

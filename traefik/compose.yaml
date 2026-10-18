@@ -2,6 +2,9 @@ networks:
   default:
     name: tk-proxy
     external: true
+  socket-proxy:
+    name: socket-proxy
+    external: true
 
 services:
   traefik:
@@ -14,6 +17,10 @@ services:
     labels:
       traefik.enable: true
       traefik.http.middlewares.traefik.basicauth.users: ${TRAEFIK_DASHBOARD_CREDENTIALS}
+      traefik.http.routers.traefik-internal.entrypoints: traefik
+      traefik.http.routers.traefik-internal.middlewares: traefik
+      traefik.http.routers.traefik-internal.rule: PathPrefix(`/api`) || PathPrefix(`/dashboard`)
+      traefik.http.routers.traefik-internal.service: api@internal
       traefik.http.routers.traefik.entrypoints: https
       traefik.http.routers.traefik.middlewares: traefik
       traefik.http.routers.traefik.rule: Host(`traefik.local.xerogravity.space`)
@@ -26,6 +33,9 @@ services:
       traefik.http.routers.traefik.tls.domains[1].sans: '*.ts.xerogravity.space'
       traefik.http.routers.traefik.tls.domains[2].main: cf.xerogravity.space
       traefik.http.routers.traefik.tls.domains[2].sans: '*.cf.xerogravity.space'
+    networks:
+    - default
+    - socket-proxy
     ports:
     - 80:80
     - 443:443
@@ -36,10 +46,6 @@ services:
     - type: bind
       source: /etc/localtime
       target: /etc/localtime
-      read_only: true
-    - type: bind
-      source: /var/run/docker.sock
-      target: /var/run/docker.sock
       read_only: true
     - type: bind
       source: ./container_data/traefik/acme.json
