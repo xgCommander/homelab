@@ -11,6 +11,8 @@ services:
     container_name: dozzle
     environment:
       DOCKER_HOST: tcp://socket-proxy:2375
+      DOZZLE_AUTH_PROVIDER: simple
+      DOZZLE_AUTH_TTL: 720h
       DOZZLE_HOSTNAME: dozzle.local.xerogravity.space
     image: amir20/dozzle:latest
     labels:
@@ -24,3 +26,8 @@ services:
     - default
     - socket-proxy
     restart: unless-stopped
+    volumes:
+    - type: bind
+      source: ./container_data/dozzle/data
+      target: /data
+      read_only: false
